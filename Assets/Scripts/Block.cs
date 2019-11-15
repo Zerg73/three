@@ -4,15 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 public class Block : MonoBehaviour
 {
-    public int num;
-    public int no;
-    public bool lig;
-    public bool ok;
+    public int num;//表示颜色
+    public int no;//表示序号
+    public bool lig;//控制点击时的高亮
+    public bool ok;//控制提示
 
-    private GameObject gm;
-    private GameObject text;
-    private GameObject pl;
-    private GameObject okicon;
+    private GameObject gm;//保存gm的实体
+    private GameObject text;//测试用
+    private GameObject pl;//高亮图标实体
+    private GameObject okicon;//提示图标实体
     void Awake()
     {
         lig=false;
@@ -27,18 +27,12 @@ public class Block : MonoBehaviour
         }
     }
 
+    //用于设置颜色（就是一个整数）
     public void SetValue(){
         num = Random.Range(0, 8);
     }
-    void OnEnable()
-    {
-        
-    }
-   
-
     void Update()
     {
-       
         gameObject.GetComponent<Image>().color = ColorSet(num);
         pl.SetActive(lig);
         okicon.SetActive(ok&&gm.GetComponent<GameManager>().istip);
@@ -49,13 +43,14 @@ public class Block : MonoBehaviour
     //     Debug.Log("我是"+no+"，我被点击了。");
     // }
 
+    //点击事件以及切换选中高亮
     public void Click()
     {
         lig=!lig;
         gm.GetComponent<GameManager>().GetClick(no);
     }
 
-
+    //颜色控制函数
     Color ColorSet(int n)
     {
         switch (n)

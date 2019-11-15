@@ -28,25 +28,14 @@ public class GameManager : MonoBehaviour
     public bool istip;
     private int noa, nob;
     private int answer;
-
     float t1 = 0, t2 = 0, t3 = 0, t4 = 0;
-
-    bool b;
-    void Awake()
-    {
-
-    }
     void OnEnable()
     {
         Init();
     }
-    void Start()
-    {
-
-    }
-
     void Update()
     {
+        //最高分更新
         if (score >= highScore)
         {
             highScore=score;
@@ -55,6 +44,7 @@ public class GameManager : MonoBehaviour
         highScoreText.text = "HighScore: " + highScore;
         scoreText.text = "Score: " + score;
         string a = "剩余移动方法： " + answer;
+        //当无法交换的时候显示更新按钮
         if (answer == 0)
         {
             reloadButton.gameObject.SetActive(true);
@@ -63,20 +53,18 @@ public class GameManager : MonoBehaviour
         {
             reloadButton.gameObject.SetActive(false);
         }
-
-
         testText.text = a;
         ShowTime();
         DeathCheck();
 
     }
-
+    //重新加载游戏（其实就是重置了分数和时间，顺便随机一哈
     public void Restart(){
         score=0;
         ReloadButton();
         t1 = 0; t2 = 0; t3 = 0; t4 = 0;
     }
-
+    //重新随机，显而易见
     public void ReloadButton()
     {
         int s = score;
@@ -89,12 +77,9 @@ public class GameManager : MonoBehaviour
             }
         }
         Check();
-
-
         score = s;
-
-
     }
+    //用于切换是否显示提示
     public void SwitchTipButton()
     {
         istip = !istip;
@@ -107,6 +92,7 @@ public class GameManager : MonoBehaviour
             tipButton.transform.Find("Text").GetComponent<Text>().text = "显示提示";
         }
     }
+    //时间显示相关函数
     void ShowTime()
     {
         t1 = t1 + Time.deltaTime;
@@ -129,14 +115,7 @@ public class GameManager : MonoBehaviour
         " : " + Mathf.FloorToInt(t3).ToString() + " : " +
         Mathf.FloorToInt(t2).ToString() + " : " + Mathf.FloorToInt(t1).ToString() + "\n";
     }
-
-    IEnumerator Waiting(float n)
-    {
-        falling = true;
-        yield return new WaitForSeconds(n);
-        falling = false;
-    }
-
+    //初始化，加载出 size × size 个物体，初始布局
     void Init()
     {
         int no = 0;
@@ -165,27 +144,17 @@ public class GameManager : MonoBehaviour
                 box[i, j] = temp;
             }
         }
-
         Cut();
-
-
-
         Check();
         DeathCheck();
         while (answer == 0)
         {
             ReloadButton();
         }
-
-
-
         score = 0;
         ischange = false;
     }
-
-
-
-
+    //用于检测当前是否凑齐了消除条件
     void Check()
     {
         ischange = false;
@@ -199,9 +168,11 @@ public class GameManager : MonoBehaviour
 
             for (int j = 1; j < size; j++)
             {
+                //当该行存在存在两个相连的时候，继续判断是否能达到3个
                 if (row[i][j] == row[i][j - 1])
                 {
                     rowline++;
+                    //如果判断到了末尾且连续达到3个或以上就开始消除（及将值设置为预设的10）
                     if (j == size - 1 && rowline >= 3)
                     {
                         ischange = true;
@@ -214,6 +185,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
+                    //这个是和前面的颜色不同，但之前相连超过3个，就将前面的消除。
                     if (rowline >= 3)
                     {
                         ischange = true;
@@ -226,9 +198,11 @@ public class GameManager : MonoBehaviour
                     rowline = 1;
                 }
                 /* *************************************************************************/
+                //和上面对应，这是列
                 if (col[i][j] == col[i][j - 1])
                 {
                     colline++;
+                    //参考上面
                     if (j == size - 1 && colline >= 3)
                     {
                         ischange = true;
@@ -241,6 +215,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
+                    //同上
                     if (colline >= 3)
                     {
                         ischange = true;
@@ -255,7 +230,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
+        //如果发生了交换的情况，就更新数组，下落并填充，继续Check直到3连结束
         if (ischange)
         {
             Splice();
@@ -302,7 +277,7 @@ public class GameManager : MonoBehaviour
         }
         Cut();
     }
-
+    //单独将col数组更新至box数组
     void Csplice()
     {
         for (int i = 0; i < size; i++)
@@ -314,6 +289,7 @@ public class GameManager : MonoBehaviour
         }
         Cut();
     }
+    //单独将row数组更新至box数组
     void Rsplice()
     {
         for (int i = 0; i < size; i++)
@@ -327,7 +303,7 @@ public class GameManager : MonoBehaviour
     }
 
 
-
+    //处理下落
     void Falldown()
     {
         falling = true;
@@ -339,7 +315,8 @@ public class GameManager : MonoBehaviour
     }
 
 
-
+    //对每一列进行下落处理，归并到Falldown()函数中
+    //这个函数的实现我是想起了一道算法题：将数组中的0全部置于末尾，其余元素顺序不变。这个函数的实现就是将10全部放到前面
     void Fall(ref int[] input)
     {
         int j = size - 1;
@@ -349,15 +326,11 @@ public class GameManager : MonoBehaviour
             {
                 Swap(ref input[i], ref input[j--]);
             }
-            else
-            {
-
-            }
         }
     }
+    //交换函数，不解释了
     void Swap(ref int a, ref int b)
     {
-
         if (a == b)
         {
             return;
@@ -366,12 +339,14 @@ public class GameManager : MonoBehaviour
         b ^= a;
         a ^= b;
     }
+    //填充函数，被消除后就填充啦
     void Fill()
     {
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
             {
+                //当前版本，10即为“消除”
                 if (col[i][j] == 10)
                 {
                     col[i][j] = Random.Range(0, 8);
@@ -385,18 +360,20 @@ public class GameManager : MonoBehaviour
         Csplice();
         falling = false;
     }
+    //接受鼠标点击事件，达到两次就检测是否可以移动消除
     public void GetClick(int no)
     {
-
-
+        //检测是否是第一次点击
         if (!oneSelected)
         {
             noa = no;
             oneSelected = true;
         }
+        //不然就是第二次，然后重置标志变量
         else
         {
             nob = no;
+            //只要两次点击不在同一位置，就启动exchange函数
             if (noa != nob)
                 Exchange();
             box[Mathf.FloorToInt(noa / size), noa % size].GetComponent<Block>().lig = false;
@@ -404,24 +381,21 @@ public class GameManager : MonoBehaviour
             oneSelected = false;
         }
     }
+    //如果上一个函数满足条件，就运行这个函数来交换
     void Exchange()
     {
         ischange = false;
-
+        //限定：只有上下或者左右相邻的两个元素才可进行交换
         if (Mathf.Abs(nob - noa) == 1 || Mathf.Abs(nob - noa) == size)
         {
             Swap(ref col[noa % size][Mathf.FloorToInt(noa / size)], ref col[nob % size][Mathf.FloorToInt(nob / size)]);
             Swap(ref row[Mathf.FloorToInt(noa / size)][noa % size], ref row[Mathf.FloorToInt(nob / size)][nob % size]);
-
             Check();
-        }
-        else
-        {
         }
     }
 
 
-
+    //用于检测当前棋盘是否还可以交换
     void DeathCheck()
     {
         answer = 0;
@@ -432,16 +406,17 @@ public class GameManager : MonoBehaviour
                 box[i, j].GetComponent<Block>().ok = false;
             }
         }
-
-
-
-
-
-
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
             {
+                //我决定画个图
+                //
+                // X O X X O X
+                // O X 1 2 X O
+                // X O X X O X
+                //
+                //思路是：以1为起点，假如2的位置没有越界，那么在12相连的基础上，能达成消除的就6种O的位置，逐一判断是否越界，下面那个是列的，90°倒转思考。
                 //两个相邻的情况
                 if (j + 1 < size && row[i][j] == row[i][j + 1])
                 {
@@ -484,7 +459,11 @@ public class GameManager : MonoBehaviour
                         answer++;
                     }
                 }
-
+                //
+                // X O X
+                // 1 X 2
+                // X O X
+                //
                 //隔一个的情况
                 if (j + 2 < size && row[i][j] == row[i][j + 2])
                 {
